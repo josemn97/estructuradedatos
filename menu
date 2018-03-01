@@ -1,0 +1,56 @@
+ #include "stdafx.h"
+ #include "conio.h"
+ #include <iostream>
+ using namespace std;
+
+  int sumarDigitos(int a);
+  int invertir(int a);
+bool verifCapicua(int a);
+void main(){
+	int opc, a, b, c, n, z, s=0,x;
+
+	do{
+		cout<<"Menu"<<endl;
+		cout<<"1 Sumatoria de digitos"<<endl;
+		cout<<"2 Invertir"<<endl;
+		cout<<"0 SALIR"<<endl;
+		cout<<"Ingrese una opcion"<<endl;
+		cin>>opc;
+		switch(opc){
+		case 1:{
+			{int n, s=0, a;
+	          cout<< " \t Introduzca un numero entero: ";
+	             cin>>n;
+	             while(n>0)
+	            {a=n%10;
+	             s=s+a;
+	             n=n/10;
+	            }
+	           cout<<"\n\t La suma de los digitos es; "<<s;
+	
+	           
+            
+			break;
+			}
+		case 2:{
+			cout<< " \t Introduzca un numero: ";
+	        cin>>n;
+	       while(n>0)
+	     {
+		    x=n%10;
+	        z=z*10+x;
+	        n=n/10;
+	     }
+	  
+             cout<<"\n\t El numero invertido es; "<<z;
+			break;
+			   }
+		case 0: cout<<"GRACIAS"; break;
+		default: cout<<"Opcion incorreta";break;
+		}
+	}while(opc!=0);
+	getch();
+	
+	
+	
+	}
