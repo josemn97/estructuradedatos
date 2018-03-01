@@ -1,0 +1,26 @@
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+using namespace std;
+
+void main()
+
+{
+	int n, y=0, x;
+	cout<< " \t Introduzca un numero: ";
+	cin>>n;
+	while(n>0)
+	 {
+		 x=n%10;
+		 if (x%2==0)
+		 {
+	       y=y+1;
+		 }
+	       n=n/10;
+	 }
+	
+	cout<<"\n\t La cantidad de digitos pares es: "<<y;
+	
+	getch();
+}
+
