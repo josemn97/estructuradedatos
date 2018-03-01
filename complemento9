@@ -1,0 +1,29 @@
+#include "stdafx.h"
+#include <iostream>
+#include <conio.h>
+using namespace std;
+
+void main()
+{
+	int n,dig,aux,s=0,dif, comp=0,d;
+	cout<<"por favor ingrese un numero entero"<<endl;
+	cin>>n;
+	while(n>0)
+	{
+		dig=n%10;
+		dif=9-dig;
+		s=((s*10)+dif);
+		n=n/10;
+	
+	}
+	aux=s;
+	while(aux>0)
+	{
+		d=aux%10;
+		comp=comp*10+d;
+		aux=aux/10;
+	}
+	cout<<"el complemento a 9 del numero ingresado es:"<<endl;
+	cout<<comp;
+	getch();
+}
