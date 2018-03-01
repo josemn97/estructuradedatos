@@ -1,0 +1,23 @@
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+using namespace std;
+
+void main()
+
+{
+	int n, z=0, x;
+	cout<< " \t Introduzca un numero: ";
+	cin>>n;
+	while(n>0)
+	 {
+		 x=n%10;
+	     z=z*10+x;
+	     n=n/10;
+	 }
+	
+	cout<<"\n\t El numero invertido es; "<<z;
+	
+	getch();
+}
+
