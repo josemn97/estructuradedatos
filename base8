@@ -1,0 +1,25 @@
+#include "stdafx.h"
+#include <iostream>
+#include <conio.h>
+using namespace std;
+void main()
+
+{
+	int num,dig,cont_dig=0;
+	cout<<"ingrese un numero entero de base 8"<<endl;
+	cin>>num;
+	while(num>0)
+	{
+		dig=num%10;
+		cout<<dig;
+		if(dig>7)
+	    cont_dig=cont_dig+1;
+		num=num/10;
+	}
+
+	if(cont_dig>0)
+		cout<<"el numero no es de base 8";
+	else
+	    cout<<"el numero es de base 8";
+	getch();
+}
