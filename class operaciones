@@ -1,0 +1,83 @@
+operaciones.h
+
+#pragma once
+class operaciones
+{
+private:
+	int N1;
+	int N2;
+	int suma;
+	int resta;
+	float div;
+	int mult;
+
+public:
+	operaciones(void);
+	~operaciones(void);
+	int calculosuma(int n1, int n2);
+	int calculoresta(int n1, int n2);
+	float calculodiv(int n1, int n2);
+	int calculomult(int n1, int n2);
+};
+
+
+operaciones.cpp
+
+#include "StdAfx.h"
+#include "operaciones.h"
+
+
+operaciones::operaciones(void)
+{
+}
+
+
+operaciones::~operaciones(void)
+{
+}
+
+int operaciones::calculosuma(int n1,int n2)
+{
+	suma=n1+n2;
+	return suma;
+}
+int operaciones::calculoresta(int n1,int n2)
+{
+	resta=n1-n2;
+	return resta;
+}
+int operaciones::calculomult(int n1,int n2)
+{
+	mult=n1*n2;
+	return mult;
+}
+float operaciones::calculodiv(int n1,int n2)
+{
+	div=n1/n2;
+	return div;
+}
+
+
+ejemplo.cpp
+
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+#include "operaciones.h"
+using namespace std;
+
+void main()
+{
+	operaciones operaciones1, operaciones2;
+	int x,y;
+	cout<<"ingrese primer numero: ";
+	cin>>x;
+	cout<<"ingrese segundo numero: ";
+	cin>>y;
+	cout<< "La suma es: "<<operaciones1.calculosuma(x,y)<<endl;
+	cout<< "La resta es: "<<operaciones1.calculoresta(x,y)<<endl;
+	cout<< "La multiplicacion es: "<<operaciones1.calculomult(x,y)<<endl;
+	cout<< "La division es: "<<operaciones1.calculodiv(x,y)<<endl;
+	getch();
+
+}
