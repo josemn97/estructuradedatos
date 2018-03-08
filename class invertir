@@ -1,0 +1,61 @@
+invertir.h
+
+#pragma once
+class invertir
+{
+private:
+	int numero;
+	int invertido;
+
+
+public:
+	invertir(void);
+	~invertir(void);
+	int calculo(int n);
+};
+
+
+invertir.cpp
+
+#include "invertir.h"
+
+
+invertir::invertir(void)
+{
+}
+
+
+invertir::~invertir(void)
+{
+}
+
+int invertir::calculo(int n)
+{
+	int x, z=0;
+	while(n>0)
+	 {
+		 x=n%10;
+	     z=z*10+x;
+	     n=n/10;
+	 }
+
+ return z;
+ }
+
+
+ejemplo.cpp
+
+#include "stdafx.h"
+#include "conio.h"
+#include <iostream>
+#include "invertir.h"
+using namespace std;
+ void main()
+ {
+	 invertir invertir1, invertir2;
+	 int n,z,x;
+	 cout<<"ingrese numero";
+	 cin>>n;
+	 cout<< "el numero invertido es: "<<invertir1.calculo(n)<<endl;
+	 getch();
+ }
