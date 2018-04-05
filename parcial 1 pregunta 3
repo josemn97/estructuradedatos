@@ -1,0 +1,148 @@
+vector.h
+
+#pragma once
+ class Vector
+{
+private:
+	int Vec[100];
+	int n;
+public:
+	Vector(void);
+	~Vector(void);
+	void carga(int Vec[100],int n);
+	void muestramen(int Vec[100],int n);
+	void orascen(int Vec[100],int n);
+};
+
+vector.cpp
+
+#include "StdAfx.h"
+#include "conio.h"
+#include <iostream>
+#include "Vector.h"
+
+using namespace std;
+
+
+Vector::Vector(void)
+{
+}
+Vector::~Vector(void)
+{
+}
+void Vector::carga(int Vec[],int n)
+{
+	int i;
+	cout<<"Coloque los valores del vector "<<endl;
+	for(i=0;i<n;i++)
+	{
+		cout<<"V["<<i<<"]  = ";
+		cin>>Vec[i];
+	}
+
+}
+
+void Vector::muestramen(int Vec[],int n)
+{
+	int i,s,men;
+	men=Vec[0];
+	s=0;
+	for(i=1;i<n;i++)
+	{
+		if(Vec[i]<men)
+		{
+			men=Vec[i];
+		
+		}
+	}
+		cout<<"El numero menor es : "<<men<<endl;
+	for(i=0;i<n;i++)
+	{
+		if(men==Vec[i])
+		{
+			cout<<"La posicion del numero menor es "<<i<<endl;
+		}
+	}
+
+}
+
+void Vector::orascen(int Vec[100],int n)
+{
+	int i,j,aux,t;
+	cout<<"Su vector ordenado ascendentemente seria : "<<endl;
+	for(i=0;i<n-1;i++)
+	{
+		for(j=i+1;j<n;j++)
+	
+			if (Vec[i]>Vec[j])
+			{
+				aux=Vec[j];
+				Vec[j]=Vec[i];
+				Vec[i]=aux;
+			}
+		cout<<"V["<<i<<"] :"<<Vec[i]<<endl;
+	}
+	cout<<"V["<<n-1<<"] :"<<Vec[n-1]<<endl;
+
+}
+
+
+ej.cpp
+
+#include "StdAfx.h"
+#include "conio.h"
+#include "Vector.h"
+#include <iostream>
+
+
+using namespace std;
+void main ()
+
+{
+	Vector Vector1;
+	
+	int op,n,Vec[100];
+
+	do
+	{
+	cout<<"Coloque el tama�o del vector que sea menor que 100 : "<<endl;
+	cin>>n;
+	}while(n>100||n<0);
+	do
+	{
+	cout<<"              "<<endl;
+	cout<<"1� Cargar Vector "<<endl;
+	cout<<"2� Encontrar el menor numero del vector y su posicion "<<endl;
+	cout<<"3� Ordenar de manera ascendente el vector "<<endl;
+	cout<<"Presione 0 para salir : ";
+	cin>>op;
+		switch (op)
+{
+ case 1:	
+ {
+   Vector1.carga(Vec,n);
+   break;
+ }
+ case 2 :
+ {
+   Vector1.muestramen(Vec,n);
+   break;
+ }			
+ case 3:
+ {
+   Vector1.orascen(Vec,n);
+   break;
+ }			
+ case 0:
+ {
+   cout<<"Saliendo Gracias!" ;
+   break;
+ }
+ default:
+ {
+   cout<<"Coloque un numero valido";
+ }
+				
+}
+	}while(op!=0);
+getch();
