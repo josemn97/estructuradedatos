@@ -1,0 +1,100 @@
+circulo.h
+
+#pragma once
+class circulo
+{
+private:
+	float r;
+public:
+	circulo(void);
+	~circulo(void);
+	float circulo::perimetro(float r);
+	float circulo::area(float r);
+};
+
+------------------------------------------------------------------------------------------------------------
+
+
+circulo.cpp
+
+
+#include "StdAfx.h"
+#include "circulo.h"
+
+
+circulo::circulo(void)
+{
+}
+
+
+circulo::~circulo(void)
+{
+}
+
+float circulo::perimetro(float r)
+    {
+		float p=0;
+        p=2*3.14*r;
+		return p;
+    }
+
+float circulo::area(float r)
+    {
+		float a=0;
+        a=3.14*r*r;
+		return a;
+    }
+
+-----------------------------------------------------------------------------------------------------------
+
+ej.cpp
+
+
+
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+#include "circulo.h"
+using namespace std;
+
+
+void main()
+{
+	int opcion;
+    float r;
+    circulo cir1;
+    do
+    {
+        cout<<"-------------------Menu----------------------"<<endl;
+        cout<<"- Opcion1) calcular perimetro de un circulo -"<<endl;
+        cout<<"- Opcion2) Carlacular el area de un circulo -"<<endl;
+        cout<<"- Opcion0) Salir                            -"<<endl;
+		cout<<"---------------------------------------------"<<endl;
+        cin>>opcion;
+
+        switch(opcion)
+        {
+        case 1:
+            cout<<"Ingrese el valor del radio"<<endl;
+            cin>>r;
+            cir1.perimetro(r);
+			cout<<"El perimetro del circulo es"<<cir1.perimetro(r)<<endl;
+            break;
+        case 2:   
+            cout<<"Ingrese el valor del radio"<<endl;
+            cin>>r;
+            cir1.area(r);
+			cout<<"El area del circulo es"<<cir1.area(r)<<endl;
+            break;
+            default:
+                cout<<"OPCION NO VALIDA"<<endl;
+                break;
+           
+        }
+
+        }while(opcion!=0);
+   
+
+
+
+}
