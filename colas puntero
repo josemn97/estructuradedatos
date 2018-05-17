@@ -1,0 +1,173 @@
+cola.h
+
+#pragma once
+#include<iostream>
+#include<cstdlib>
+using namespace std;
+ 
+struct nodo{
+    int nro;
+    struct nodo *sgte;
+};
+ 
+typedef struct nodo *Puntero;
+ 
+class Cola{
+    public:
+        Cola(void);
+        void Anhadir(int );
+        int Quitar(void );
+        bool ColaVacia(void);
+        void MostrarCola(void);
+        void VaciarCola(void);
+ 
+    private:
+        Puntero frente;//puntero al primer elemento de la cola
+        Puntero final;//puntero al ultimo elemento de la cola
+ 
+};
+
+cola.cpp
+
+#include "StdAfx.h"
+#include "cola.h"
+#include <iostream>
+using namespace std;
+
+Cola::Cola(void){
+    frente=NULL;//inicializamos los punteros
+    final=NULL;
+}
+ 
+bool Cola::ColaVacia(){
+ 
+    if(frente==NULL)
+        return true;
+    else return false;
+}
+void Cola::Anhadir(int x){
+ 
+     Puntero p_aux;
+ 
+     p_aux=new(struct nodo);
+     p_aux->nro=x;
+     p_aux->sgte=NULL;
+ 
+     if(frente==NULL)
+        frente=p_aux;
+     else final->sgte=p_aux;
+ 
+     final=p_aux;
+}
+ 
+int Cola::Quitar(void){
+ 
+    int n;
+    Puntero p_aux;
+ 
+    p_aux=frente;
+    n=p_aux->nro;
+    frente=(frente)->sgte;
+    delete(p_aux);
+    return n;
+}
+ 
+void Cola::MostrarCola(void){
+    Puntero p_aux;
+     p_aux=frente;
+     while(p_aux!=NULL){
+        cout<<"\n\n\t"<<p_aux->nro;
+        p_aux=p_aux->sgte;
+     }
+ 
+}
+ 
+void Cola::VaciarCola(void){
+ 
+     Puntero p_aux,r_aux;
+     p_aux=frente;
+     while(p_aux!=NULL){
+        r_aux=p_aux;
+        p_aux=p_aux->sgte;
+        delete(r_aux);
+     }
+     frente=NULL;
+     final=NULL;
+}
+
+ejemplo.cpp
+
+#include "stdafx.h"
+#include "cola.h"
+#include <iostream>
+#include "conio.h"
+using namespace std;
+
+
+void main()
+{
+	Cola cola;
+
+	int x,op;
+
+	 do
+    {
+
+     cout<<"\n\n\t -------------------------------------------\n";
+     cout<<"\t|        IMPLEMENTACION DE UNA COLA         |\n";
+     cout<<"\t|-------------------------------------------|\n";
+    cout<<" \t|                                           |"<<endl;
+    cout<<" \t|  1. ANHADIR ELEMENTO                      |"<<endl;
+    cout<<" \t|  2. QUITAR ELEMENTO                       |"<<endl;
+    cout<<" \t|  3. MOSTRAR COLA                          |"<<endl;
+    cout<<" \t|  4. VACIAR COLA                           |"<<endl;
+    cout<<" \t|  5. SALIR                                 |"<<endl;
+    cout<<" \t|                                           |"<<endl;
+    cout<<"\t -------------------------------------------\n";
+    cout<<"\t Ingrese opcion: ";
+
+	cin>> op;
+ 
+        switch(op)
+        {
+            case 1: cout<< "\n\t INGRESE NUMERO A ENCOLAR: "; cin>> x;
+                    cola.Anhadir(x);
+                    cout<<"\n\n\t\tNumero " << x << " ANHADIDO\n\n";
+                    break;
+ 
+            case 2:
+                    if(cola.ColaVacia()==true)
+                        cout<<"\n\n\tCola Vacia....";
+                    else{
+                        x = cola.Quitar( );
+                        cout<<"\n\n\tNumero "<<x<<" ELIMINADO\n";
+                        }
+                    break;
+ 
+ 
+            case 3:
+                    cout << "\n\n\t MOSTRANDO COLA\n\n";
+                    if(cola.ColaVacia()!=true)
+                        cola.MostrarCola(  );
+                    else
+                        cout<<"\n\n\tCola vacia..!"<<endl;
+                    break;
+ 
+ 
+            case 4:
+                    cola.VaciarCola(  );
+                    cout<<"\n\n\t\tCola eliminada...\n\n";
+                    break;
+ 
+            default: cout<<"\n\tIngrese una Opcion Valida....!!";
+         }
+ 
+        cout<<endl<<endl;
+        system("pause");  system("cls");
+ 
+    }while(op!=5);
+ 
+getch();
+}
+
+ 
