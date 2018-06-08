@@ -1,0 +1,3074 @@
+cliente.cpp
+
+#include "StdAfx.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class Cliente {
+
+private:
+	char	idCliente[10];
+	char	nombre[30];
+	int		edad;
+	char	sexo;
+	char	estado;		//eliminado = E, activo = A
+
+public:
+
+	Cliente() {
+		strcpy(idCliente,"");
+		strcpy(nombre,"");
+		edad		= 0;
+		sexo		= ' ';
+		estado		= ' ';
+	}
+	
+	Cliente(char idEst[], char nom[], int ed, char sx) { 
+		strcpy(idCliente,idEst);
+		strcpy(nombre,nom);
+		edad	= ed;
+		sexo	= sx;
+		estado  = 'A';
+	}
+
+	~Cliente(){
+		
+	}
+	
+	void setCliente(char idEst[], char nom[], int ed, char sx) {
+		strcpy(idCliente,idEst);
+		strcpy(nombre,nom);
+		edad		= ed;
+		sexo		= sx;
+		estado		= 'A';
+	}
+
+	char *getIdCliente() {
+		return(idCliente);
+	}
+
+	char *getNombre() {
+		return(nombre);
+	}
+
+	int getEdad() {
+		return(edad);
+	}
+
+	char getSexo() {
+		return(sexo);
+	}
+
+	char getEstado() {
+		return(estado);
+	}
+
+	void guardarArchivo(ofstream &fsalida) {
+		fsalida.write(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+		fsalida.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+		fsalida.write(reinterpret_cast<char *>(&edad), sizeof(edad));
+		fsalida.write(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+		fsalida.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+	}
+
+	bool leerArchivo(ifstream &fentrada) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+			if (fentrada.eof() == false) {		
+				fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fentrada.read(reinterpret_cast<char *>(&edad), sizeof(edad));
+				fentrada.read(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				//cout << endl << "Registro no existe";
+			}
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool eliminar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+			if (fes.eof() == false) {
+				fes.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.read(reinterpret_cast<char *>(&edad), sizeof(edad));
+				fes.read(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fes.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+		
+				estado = 'E';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&edad), sizeof(edad));
+				fes.write(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+
+	bool modificar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			char aux[10];
+			strcpy(aux,idCliente);
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+			if (fes.eof() == false) {
+				strcpy(idCliente,aux);
+				estado = 'A';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&edad), sizeof(edad));
+				fes.write(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool buscar(ifstream &fentrada, int nroReg) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fentrada.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+			fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+			fentrada.read(reinterpret_cast<char *>(&edad), sizeof(edad));
+			fentrada.read(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+			fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+			if (fentrada.eof() == false) {
+				k = true;
+			}
+			else {
+				//cout << endl << "Registro no XX existe";
+			}
+		}
+		else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	int getTamBytesRegistro() {
+		return(sizeof(idCliente) + sizeof(nombre) + sizeof(edad) + sizeof(sexo) + sizeof(estado) );
+	}
+
+	bool getRegCliente(char nomArchCliente[],char idPr[]){
+		//listar  
+		bool  k = false;
+		ifstream fentrada(nomArchCliente, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (getEstado() == 'A' && (strcmp(idPr, getIdCliente()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	bool verifexisteidCliente(char nomArchCliente[],char idPr[]){
+		//VerifExisteCliente  
+		bool  k = false;
+		ifstream fentrada(nomArchCliente, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idPr, getIdCliente()) == 0) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+};
+
+ciudad.cpp
+
+#include "StdAfx.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class Ciudad {
+
+private:
+	char	idCiudad[10];
+	char	nombre[30];
+	char    departamento[20];
+	char	estado;		//eliminado = E, activo = A
+
+public:
+
+	Ciudad() {
+		strcpy(idCiudad,"");
+		strcpy(nombre,"");
+		strcpy(departamento,"");
+		estado		= ' ';
+	}
+	
+	Ciudad(char idAd[], char nom[], char dep[]) { 
+		strcpy(idCiudad,idAd);
+		strcpy(nombre,nom);
+		strcpy(departamento,dep);
+		estado  = 'A';
+	}
+
+	~Ciudad(){
+		
+	}
+	
+	void setCiudad(char idAd[], char nom[], char car[]) {
+		strcpy(idCiudad,idAd);
+		strcpy(nombre,nom);
+		strcpy(departamento,car);
+		estado		= 'A';
+	}
+
+	char *getIdCiudad() {
+		return(idCiudad);
+	}
+
+	char *getNombre() {
+		return(nombre);
+	}
+
+	char *getDepartamento() {
+		return(departamento);
+	}
+
+	char getEstado() {
+		return(estado);
+	}
+
+	void guardarArchivo(ofstream &fsalida) {
+		fsalida.write(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+		fsalida.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+		fsalida.write(reinterpret_cast<char *>(&departamento), sizeof(departamento));
+		fsalida.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+	}
+
+	bool leerArchivo(ifstream &fentrada) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+			if (fentrada.eof() == false) {		
+				fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fentrada.read(reinterpret_cast<char *>(&departamento), sizeof(departamento));
+				fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				//cout << endl << "Registro no existe";
+			}
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool eliminar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+			if (fes.eof() == false) {
+				fes.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.read(reinterpret_cast<char *>(&departamento), sizeof(departamento));
+				fes.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+		
+				estado = 'E';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&departamento), sizeof(departamento));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+
+	bool modificar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			char aux[10];
+			strcpy(aux,idCiudad);
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+			if (fes.eof() == false) {
+				strcpy(idCiudad,aux);
+				estado = 'A';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&departamento), sizeof(departamento));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool buscar(ifstream &fentrada, int nroReg) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fentrada.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+			fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+			fentrada.read(reinterpret_cast<char *>(&departamento), sizeof(departamento));
+			fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+			if (fentrada.eof() == false) {
+				k = true;
+			}
+			else {
+				//cout << endl << "Registro no XX existe";
+			}
+		}
+		else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	int getTamBytesRegistro() {
+		return(sizeof(idCiudad) + sizeof(nombre) + sizeof(departamento) + sizeof(estado) );
+	}
+
+	bool getRegCiudad(char nomArchCiudad[],char idPr[]){
+		//listar  
+		bool  k = false;
+		ifstream fentrada(nomArchCiudad, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (getEstado() == 'A' && (strcmp(idPr, getIdCiudad()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	bool verifexisteidCiudad(char nomArchCiudad[],char idPr[]){
+		//VerifExisteCiudad  
+		bool  k = false;
+		ifstream fentrada(nomArchCiudad, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idPr, getIdCiudad()) == 0) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+};
+
+hotel.cpp
+
+#include "StdAfx.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class Hotel {
+
+private:
+	char	idHotel[10];
+	char	nombre[30];
+	char    idCiudad[20];
+	int     precio;
+	int     habitaciones;
+	char	estado;		//eliminado = E, activo = A
+
+public:
+
+	Hotel() {
+		strcpy(idCiudad,"");
+		strcpy(nombre,"");
+		strcpy(idHotel,"");
+		precio=0;
+		habitaciones=0;
+		estado		= ' ';
+	}
+	
+	Hotel(char idHot[], char nom[], char idCiu[], int pre, int hab) { 
+		strcpy(idHotel,idHot);
+		strcpy(nombre,nom);
+		strcpy(idCiudad,idCiu);
+		precio=pre;
+		habitaciones=hab;
+		estado  = 'A';
+	}
+
+	~Hotel(){
+		
+	}
+	
+	void setHotel(char idHot[], char nom[], char idCiu[], int pre, int hab) { 
+		strcpy(idHotel,idHot);
+		strcpy(nombre,nom);
+		strcpy(idCiudad,idCiu);
+		precio=pre;
+		habitaciones=hab;
+		estado  = 'A';
+	}
+
+	char *getidHotel() {
+		return(idHotel);
+	}
+
+	char *getNombre() {
+		return(nombre);
+	}
+
+	char *getidCiudad() {
+		return(idCiudad);
+	}
+
+	int getPrecio() {
+		return(precio);
+	}
+
+	int getHabitaciones() {
+		return(habitaciones);
+	}
+
+	char getEstado() {
+		return(estado);
+	}
+
+	void guardarArchivo(ofstream &fsalida) {
+		fsalida.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+		fsalida.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+		fsalida.write(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+		fsalida.write(reinterpret_cast<char *>(&precio), sizeof(precio));
+		fsalida.write(reinterpret_cast<char *>(&habitaciones), sizeof(habitaciones));
+		fsalida.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+	}
+
+	bool leerArchivo(ifstream &fentrada) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			if (fentrada.eof() == false) {		
+				fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fentrada.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+				fentrada.read(reinterpret_cast<char *>(&precio), sizeof(precio));
+				fentrada.read(reinterpret_cast<char *>(&habitaciones), sizeof(habitaciones));
+				fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				//cout << endl << "Registro no existe";
+			}
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool eliminar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			if (fes.eof() == false) {
+				fes.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+				fes.read(reinterpret_cast<char *>(&precio), sizeof(precio));
+				fes.read(reinterpret_cast<char *>(&habitaciones), sizeof(habitaciones));
+				fes.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+		
+				estado = 'E';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+				fes.write(reinterpret_cast<char *>(&precio), sizeof(precio));
+				fes.write(reinterpret_cast<char *>(&habitaciones), sizeof(habitaciones));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+
+	bool modificar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			char aux[10];
+			strcpy(aux,idHotel);
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			if (fes.eof() == false) {
+				strcpy(idHotel,aux);
+				estado = 'A';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+				fes.write(reinterpret_cast<char *>(&precio), sizeof(precio));
+				fes.write(reinterpret_cast<char *>(&habitaciones), sizeof(habitaciones));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool buscar(ifstream &fentrada, int nroReg) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+			fentrada.read(reinterpret_cast<char *>(&idCiudad), sizeof(idCiudad));
+			fentrada.read(reinterpret_cast<char *>(&precio), sizeof(precio));
+			fentrada.read(reinterpret_cast<char *>(&habitaciones), sizeof(habitaciones));
+			fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+			if (fentrada.eof() == false) {
+				k = true;
+			}
+			else {
+				//cout << endl << "Registro no XX existe";
+			}
+		}
+		else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	int getTamBytesRegistro() {
+		return(sizeof(idHotel) + sizeof(nombre) + sizeof(idCiudad) + sizeof(precio) + sizeof(habitaciones) + sizeof(estado) );
+	}
+
+	bool getRegHotel(char nomArch[],char idPr[]){
+		//listar  
+		bool  k = false;
+		ifstream fentrada(nomArch, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (getEstado() == 'A' && (strcmp(idPr, getidHotel()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	bool verifexisteidHotel(char nomArch[],char idPr[]){
+		//VerifExisteHotel  
+		bool  k = false;
+		ifstream fentrada(nomArch, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idPr, getidHotel()) == 0) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+};
+
+habitacion.cpp
+
+#include "StdAfx.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class Habitacion {
+
+private:
+	char	idHabitacion[10];
+	char	nombre[30];
+	char    idHotel[20];
+	char	estado;		//eliminado = E, activo = A
+
+public:
+
+	Habitacion() {
+		strcpy(idHabitacion,"");
+		strcpy(nombre,"");
+		strcpy(idHotel,"");
+		estado		= ' ';
+	}
+	
+	Habitacion(char idAd[], char nom[], char dep[]) { 
+		strcpy(idHabitacion,idAd);
+		strcpy(nombre,nom);
+		strcpy(idHotel,dep);
+		estado  = 'D';
+	}
+
+	~Habitacion(){
+		
+	}
+	
+	void setHabitacion(char idAd[], char nom[], char car[]) {
+		strcpy(idHabitacion,idAd);
+		strcpy(nombre,nom);
+		strcpy(idHotel,car);
+		estado		= 'D';
+	}
+
+	char *getIdHabitacion() {
+		return(idHabitacion);
+	}
+
+	char *getNombre() {
+		return(nombre);
+	}
+
+	char *getidHotel() {
+		return(idHotel);
+	}
+
+	char getEstado() {
+		return(estado);
+	}
+
+	void guardarArchivo(ofstream &fsalida) {
+		fsalida.write(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+		fsalida.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+		fsalida.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+		fsalida.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+	}
+
+	bool leerArchivo(ifstream &fentrada) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+			if (fentrada.eof() == false) {		
+				fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				//cout << endl << "Registro no existe";
+			}
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	
+	bool eliminar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+			if (fes.eof() == false) {
+				fes.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+		
+				estado = 'O';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool modificar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			char aux[10];
+			strcpy(aux,idHabitacion);
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+			if (fes.eof() == false) {
+				strcpy(idHabitacion,aux);
+				estado = 'D';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool buscar(ifstream &fentrada, int nroReg) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fentrada.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+			fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+			fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+			if (fentrada.eof() == false) {
+				k = true;
+			}
+			else {
+				//cout << endl << "Registro no XX existe";
+			}
+		}
+		else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	int getTamBytesRegistro() {
+		return(sizeof(idHabitacion) + sizeof(nombre) + sizeof(idHotel) + sizeof(estado) );
+	}
+
+	bool getRegHabitacion(char nomArchHabitacion[],char idPr[]){
+		//listar  
+		bool  k = false;
+		ifstream fentrada(nomArchHabitacion, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if ((strcmp(idPr, getIdHabitacion()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	int getNumeroRegHabitacion(char nomArchHabitacion[],char idPr[]){
+		//listar  
+		int nr;
+		bool  k = false;
+		ifstream fentrada(nomArchHabitacion, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 nr++;
+			 if ((strcmp(idPr, getIdHabitacion()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(nr);
+	}
+
+	bool verifexisteidHabitacion(char nomArchHabitacion[],char idPr[]){
+		//VerifExisteHabitacion  
+		bool  k = false;
+		ifstream fentrada(nomArchHabitacion, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idPr, getIdHabitacion()) == 0) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	bool verifhabidehotel(char nomArch[],char idhabi[],char idHotel[])
+	{
+		bool  k = false;
+		ifstream fentrada(nomArch, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idhabi, getIdHabitacion()) == 0 && strcmp(idHotel,getidHotel())==0) {
+				 k       = true; 
+			 }
+		}
+		fentrada.close();
+		return(k);
+	}
+
+};
+
+registro.cpp
+
+#include "StdAfx.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class Registro {
+
+private:
+	char	idRegistro[10];
+	char    idCliente[10];
+	char	idHabitacion[30];
+	char    idHotel[20];
+	char	estado;		//eliminado = E, activo = A
+
+public:
+
+	Registro() {
+		strcpy(idRegistro,"");
+		strcpy(idCliente,"");
+		strcpy(idHabitacion,"");
+		strcpy(idHotel,"");
+		estado		= ' ';
+	}
+	
+	Registro(char idAd[], char idCl[], char nom[], char dep[]) { 
+		strcpy(idRegistro,idAd);
+		strcpy(idCliente,idCl);
+		strcpy(idHabitacion,nom);
+		strcpy(idHotel,dep);
+		estado  = 'A';
+	}
+
+	~Registro(){
+		
+	}
+	
+	void setRegistro(char idAd[], char idCl[], char nom[], char dep[]) { 
+		strcpy(idRegistro,idAd);
+		strcpy(idCliente,idCl);
+		strcpy(idHabitacion,nom);
+		strcpy(idHotel,dep);
+		estado  = 'A';
+	}
+
+	char *getIdRegistro() {
+		return(idRegistro);
+	}
+
+	char *getidHabitacion() {
+		return(idHabitacion);
+	}
+
+	char *getidHotel() {
+		return(idHotel);
+	}
+
+	char *getidCliente() {
+		return(idCliente);
+	}
+
+	char getEstado() {
+		return(estado);
+	}
+
+	void guardarArchivo(ofstream &fsalida) {
+		fsalida.write(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+		fsalida.write(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+		fsalida.write(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+		fsalida.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+		fsalida.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+	}
+
+	bool leerArchivo(ifstream &fentrada) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.read(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+			if (fentrada.eof() == false) {	
+				fentrada.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+				fentrada.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+				fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				//cout << endl << "Registro no existe";
+			}
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool eliminar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+			if (fes.eof() == false) {
+				fes.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+				fes.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+				fes.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+		
+				estado = 'E';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+				fes.write(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+				fes.write(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+
+	bool modificar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			char aux[10];
+			strcpy(aux,idRegistro);
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+			if (fes.eof() == false) {
+				strcpy(idRegistro,aux);
+				estado = 'A';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+				fes.write(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+				fes.write(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool buscar(ifstream &fentrada, int nroReg) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fentrada.read(reinterpret_cast<char *>(&idRegistro), sizeof(idRegistro));
+			fentrada.read(reinterpret_cast<char *>(&idCliente), sizeof(idCliente));
+			fentrada.read(reinterpret_cast<char *>(&idHabitacion), sizeof(idHabitacion));
+			fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+			if (fentrada.eof() == false) {
+				k = true;
+			}
+			else {
+				//cout << endl << "Registro no XX existe";
+			}
+		}
+		else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	int getTamBytesRegistro() {
+		return(sizeof(idRegistro) + sizeof(idHabitacion) + sizeof(idCliente) + sizeof(idHotel) + sizeof(estado) );
+	}
+
+	bool getRegRegistro(char nomArchRegistro[],char idPr[]){
+		//listar  
+		bool  k = false;
+		ifstream fentrada(nomArchRegistro, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (getEstado() == 'A' && (strcmp(idPr, getIdRegistro()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	bool verifexisteidRegistro(char nomArch[],char idPr[]){
+		//VerifExisteRegistro
+		bool  k = false;
+		ifstream fentrada(nomArch, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idPr, getIdRegistro()) == 0) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+};
+
+formcliente.h
+
+#pragma once
+#define ARCHIVOCliente "Cliente.dat"
+#include "Cliente.cpp"
+
+namespace ServicioHotelería {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for FormCliente
+	/// </summary>
+	public ref class FormCliente : public System::Windows::Forms::Form
+	{
+	public:
+		FormCliente(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+			amig = new Cliente();
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~FormCliente()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::ComboBox^  comboBox1;
+	protected: 
+	private: System::Windows::Forms::Label^  label6;
+	private: System::Windows::Forms::Label^  label5;
+	private: System::Windows::Forms::Button^  button5;
+	private: System::Windows::Forms::Button^  button4;
+	private: System::Windows::Forms::TextBox^  textBox5;
+	private: System::Windows::Forms::Button^  button3;
+	private: System::Windows::Forms::Button^  button2;
+	private: System::Windows::Forms::Button^  button1;
+	private: Cliente *amig;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column5;
+	private: System::Windows::Forms::TextBox^  textBox3;
+	private: System::Windows::Forms::TextBox^  textBox2;
+	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::Label^  label4;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  label1;
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->button5 = (gcnew System::Windows::Forms::Button());
+			this->button4 = (gcnew System::Windows::Forms::Button());
+			this->textBox5 = (gcnew System::Windows::Forms::TextBox());
+			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// comboBox1
+			// 
+			this->comboBox1->FormattingEnabled = true;
+			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(2) {L"Femenino", L"Masculino"});
+			this->comboBox1->Location = System::Drawing::Point(54, 178);
+			this->comboBox1->Name = L"comboBox1";
+			this->comboBox1->Size = System::Drawing::Size(121, 21);
+			this->comboBox1->TabIndex = 35;
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Bold | System::Drawing::FontStyle::Underline)), 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->label6->ForeColor = System::Drawing::Color::SandyBrown;
+			this->label6->Location = System::Drawing::Point(16, 231);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(164, 24);
+			this->label6->TabIndex = 34;
+			this->label6->Text = L"Pantalla Clientes";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(241, 398);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(140, 13);
+			this->label5->TabIndex = 33;
+			this->label5->Text = L"Numero de registro a buscar";
+			// 
+			// button5
+			// 
+			this->button5->Location = System::Drawing::Point(166, 295);
+			this->button5->Name = L"button5";
+			this->button5->Size = System::Drawing::Size(144, 46);
+			this->button5->TabIndex = 32;
+			this->button5->Text = L"Modificar";
+			this->button5->UseVisualStyleBackColor = true;
+			this->button5->Click += gcnew System::EventHandler(this, &FormCliente::button5_Click);
+			// 
+			// button4
+			// 
+			this->button4->Location = System::Drawing::Point(7, 358);
+			this->button4->Name = L"button4";
+			this->button4->Size = System::Drawing::Size(141, 43);
+			this->button4->TabIndex = 31;
+			this->button4->Text = L"Eliminar";
+			this->button4->UseVisualStyleBackColor = true;
+			this->button4->Click += gcnew System::EventHandler(this, &FormCliente::button4_Click);
+			// 
+			// textBox5
+			// 
+			this->textBox5->Location = System::Drawing::Point(410, 395);
+			this->textBox5->Name = L"textBox5";
+			this->textBox5->Size = System::Drawing::Size(100, 20);
+			this->textBox5->TabIndex = 30;
+			this->textBox5->Text = L"5";
+			// 
+			// button3
+			// 
+			this->button3->Location = System::Drawing::Point(352, 296);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(134, 45);
+			this->button3->TabIndex = 29;
+			this->button3->Text = L"Buscar";
+			this->button3->UseVisualStyleBackColor = true;
+			this->button3->Click += gcnew System::EventHandler(this, &FormCliente::button3_Click);
+			// 
+			// button2
+			// 
+			this->button2->Location = System::Drawing::Point(521, 297);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(136, 42);
+			this->button2->TabIndex = 28;
+			this->button2->Text = L"Mostrar";
+			this->button2->UseVisualStyleBackColor = true;
+			this->button2->Click += gcnew System::EventHandler(this, &FormCliente::button2_Click_1);
+			// 
+			// button1
+			// 
+			this->button1->Location = System::Drawing::Point(7, 295);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(136, 41);
+			this->button1->TabIndex = 27;
+			this->button1->Text = L"Adicionar";
+			this->button1->UseVisualStyleBackColor = true;
+			this->button1->Click += gcnew System::EventHandler(this, &FormCliente::button1_Click);
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(5) {this->Column1, 
+				this->Column2, this->Column3, this->Column4, this->Column5});
+			this->dataGridView1->Location = System::Drawing::Point(220, 23);
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->Size = System::Drawing::Size(506, 232);
+			this->dataGridView1->TabIndex = 26;
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"NroReg";
+			this->Column1->Name = L"Column1";
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"idCliente";
+			this->Column2->Name = L"Column2";
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Nombre";
+			this->Column3->Name = L"Column3";
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Edad";
+			this->Column4->Name = L"Column4";
+			// 
+			// Column5
+			// 
+			this->Column5->HeaderText = L"Sexo";
+			this->Column5->Name = L"Column5";
+			// 
+			// textBox3
+			// 
+			this->textBox3->Location = System::Drawing::Point(57, 136);
+			this->textBox3->Name = L"textBox3";
+			this->textBox3->Size = System::Drawing::Size(100, 20);
+			this->textBox3->TabIndex = 25;
+			// 
+			// textBox2
+			// 
+			this->textBox2->Location = System::Drawing::Point(57, 86);
+			this->textBox2->Name = L"textBox2";
+			this->textBox2->Size = System::Drawing::Size(100, 20);
+			this->textBox2->TabIndex = 24;
+			// 
+			// textBox1
+			// 
+			this->textBox1->Location = System::Drawing::Point(57, 43);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(100, 20);
+			this->textBox1->TabIndex = 23;
+			// 
+			// label4
+			// 
+			this->label4->AutoSize = true;
+			this->label4->Location = System::Drawing::Point(17, 181);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(31, 13);
+			this->label4->TabIndex = 22;
+			this->label4->Text = L"Sexo";
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(17, 136);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(32, 13);
+			this->label3->TabIndex = 21;
+			this->label3->Text = L"Edad";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(5, 86);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(44, 13);
+			this->label2->TabIndex = 20;
+			this->label2->Text = L"Nombre";
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(4, 46);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(48, 13);
+			this->label1->TabIndex = 19;
+			this->label1->Text = L"IdCliente";
+			// 
+			// FormCliente
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(738, 450);
+			this->Controls->Add(this->comboBox1);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->label5);
+			this->Controls->Add(this->button5);
+			this->Controls->Add(this->button4);
+			this->Controls->Add(this->textBox5);
+			this->Controls->Add(this->button3);
+			this->Controls->Add(this->button2);
+			this->Controls->Add(this->button1);
+			this->Controls->Add(this->dataGridView1);
+			this->Controls->Add(this->textBox3);
+			this->Controls->Add(this->textBox2);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label4);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->label2);
+			this->Controls->Add(this->label1);
+			this->Name = L"FormCliente";
+			this->Text = L"FormCliente";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->EndInit();
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+
+	bool intDatos(){		
+		//pasa los datos del form al objeto
+		char	idCliente[10];
+		char	nombre[30];
+		int		edad,i;
+		char	sexo;
+		bool    k = false;
+		if(textBox1->TextLength > 0 && textBox2->TextLength > 0 && textBox3->TextLength > 00){
+			for (i = 0; i < textBox1->TextLength;i++ ) {
+				idCliente[i] = textBox1->Text[i];
+			}
+			idCliente[i] = '\0';
+
+			for (i = 0; i < textBox2->TextLength;i++ ) {
+				nombre[i] = textBox2->Text[i];
+			}
+			nombre[i] = '\0';
+
+			edad = Convert::ToInt32(textBox3->Text);
+		
+			int selectedIndex = comboBox1->SelectedIndex; //para definnir sexo dessde combobox
+			Object^ selectedItem = comboBox1->SelectedItem;
+ 		    if (comboBox1->SelectedIndex.Equals(-1)){
+				MessageBox::Show( "Falta seleccionar sexo ..!!"   );
+			}else{
+				if(amig->verifexisteidCliente(ARCHIVOCliente,idCliente)==false)
+				{
+					sexo = ( selectedIndex == 0) ? 'F' : 'M';
+					amig->setCliente(idCliente,nombre, edad, sexo);	
+					k = true;
+					textBox1->Text =  ""; textBox2->Text =  ""; textBox3->Text = "";
+					comboBox1->SelectedIndex = -1;
+				}
+				else
+				{
+					textBox1->Text =  "";
+					MessageBox::Show("Id ya existente, debe ingresar otro");	
+				}
+			}			
+		}else
+			MessageBox::Show("Debe introducir todos los datos ", "Alerta...!!!");			 
+		return(k);
+	 }
+
+	 int getNumDeRegistros() {
+		 //retorna la cantidad de registros del archivo
+		int r = 0;
+		ifstream fentrada(ARCHIVOCliente, ios::in | ios::binary);
+		fentrada.seekg(0, ios::end);		// ir al final del fichero
+		r  = fentrada.tellg();// leer la posición actual
+		// El número de registros es el tamaño en bytes dividido entre el tamaño del registro:
+		r = r / amig->getTamBytesRegistro();
+		fentrada.close();
+		return (r);
+	}
+
+
+	 int buscarCliente(int nroReg, bool mostrar){
+		 //Busca un registro si lo encuentra puede ser que muestre en form y si no existe retorna -1
+		ifstream fentrada(ARCHIVOCliente, ios::in | ios::binary);
+		if(amig->buscar(fentrada,nroReg) == true) {			
+			if (amig->getEstado() == 'A' ) {
+				if(mostrar){
+					textBox1->Text = gcnew String(amig->getIdCliente());
+					textBox2->Text = gcnew String(amig->getNombre());
+					textBox3->Text = amig->getEdad().ToString();
+					comboBox1->SelectedIndex = (amig->getSexo() == 'M') ? 1 : 0;					
+				}
+			}else{
+				nroReg=-1;
+			}
+		} else {
+			nroReg=-1;
+		}
+		fentrada.close();
+		if(nroReg <= 0)		MessageBox::Show("Registro no existe..!!! ", "Alerta...!!!");
+		return(nroReg);
+	}
+
+	 bool buscarCliente(Cliente *regAmig){
+		 //Busca un registro 
+		 bool k = false;
+		 ifstream fentrada(ARCHIVOCliente, ios::in | ios::binary);
+		 while ((amig->leerArchivo(fentrada) == true)  && (k == false)) {
+			 if (amig->getEstado() == 'A') {
+				 regAmig = amig;
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+		 //adicionar	
+		if (intDatos() == true) {
+			ofstream fsalida(ARCHIVOCliente, ios::app | ios::binary);
+			amig->guardarArchivo(fsalida);
+			fsalida.close();
+		}
+	 }
+
+
+private: System::Void button2_Click_1(System::Object^  sender, System::EventArgs^  e) {
+		 //listar  
+		//String^ cad = gcnew String();
+		int cr = 0,c=0,nr = getNumDeRegistros();
+		dataGridView1->ReadOnly = true;
+		if(nr > 0) dataGridView1->RowCount = nr; 
+		else{	   dataGridView1->RowCount = 1;
+				   MessageBox::Show("Archivo no existe..!!! ", "Alerta...!!!");
+		}	
+		ifstream fentrada(ARCHIVOCliente, ios::in | ios::binary);
+		while (amig->leerArchivo(fentrada) == true) {
+			cr++;
+			if (amig->getEstado() == 'A') {
+				dataGridView1->Rows[c]->Cells[0]->Value = cr;
+				dataGridView1->Rows[c]->Cells[1]->Value = gcnew String(amig->getIdCliente());
+				dataGridView1->Rows[c]->Cells[2]->Value = gcnew String(amig->getNombre());
+				dataGridView1->Rows[c]->Cells[3]->Value = amig->getEdad();
+				dataGridView1->Rows[c++]->Cells[4]->Value = (amig->getSexo() == 'M') ? "Masculino" : "Femenino";
+			}
+		}
+		fentrada.close();
+	}
+private: System::Void button5_Click(System::Object^  sender, System::EventArgs^  e) {
+			//modificar
+			int nroReg = Convert::ToInt32(textBox5->Text);
+			nroReg = buscarCliente(nroReg,false);
+			if(nroReg > 0){				
+				if (intDatos() == true) {
+					fstream fes(ARCHIVOCliente, ios::in | ios::out | ios::binary);
+					amig->modificar(fes, nroReg);
+					fes.close();
+				}
+			}
+		}
+
+private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+			 		//Buscar
+				int nroReg = Convert::ToInt32(textBox5->Text);
+				buscarCliente(nroReg,true);
+		 }
+
+private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
+		//Borrar
+		int nroReg = Convert::ToInt32(textBox5->Text);
+		nroReg = buscarCliente(nroReg,true);
+		if(nroReg > 0){
+			fstream fes(ARCHIVOCliente, ios::in | ios::out | ios::binary);
+			amig->eliminar(fes, nroReg);			
+			fes.close();
+		 }
+	}
+};
+}
+
+formciudad.h
+
+#pragma once
+#define ARCHIVOCiudad "Ciudad.dat"
+#include "Ciudad.cpp"
+
+namespace ServicioHotelería {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for FormCiudad
+	/// </summary>
+	public ref class FormCiudad : public System::Windows::Forms::Form
+	{
+	public:
+		FormCiudad(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+			ciud = new Ciudad(); 
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~FormCiudad()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::Label^  label6;
+	protected: 
+	private: System::Windows::Forms::Label^  label5;
+
+	private: System::Windows::Forms::Button^  button4;
+	private: System::Windows::Forms::TextBox^  textBox5;
+	private: System::Windows::Forms::Button^  button3;
+	private: System::Windows::Forms::Button^  button2;
+	private: System::Windows::Forms::Button^  button1;
+	private: Ciudad *ciud;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::TextBox^  textBox3;
+	private: System::Windows::Forms::TextBox^  textBox2;
+	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  label1;
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->button4 = (gcnew System::Windows::Forms::Button());
+			this->textBox5 = (gcnew System::Windows::Forms::TextBox());
+			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Bold | System::Drawing::FontStyle::Underline)), 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->label6->ForeColor = System::Drawing::Color::SandyBrown;
+			this->label6->Location = System::Drawing::Point(37, 218);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(155, 24);
+			this->label6->TabIndex = 68;
+			this->label6->Text = L"Pantalla Ciudad";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(260, 395);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(140, 13);
+			this->label5->TabIndex = 67;
+			this->label5->Text = L"Numero de registro a buscar";
+			// 
+			// button4
+			// 
+			this->button4->Location = System::Drawing::Point(190, 294);
+			this->button4->Name = L"button4";
+			this->button4->Size = System::Drawing::Size(141, 43);
+			this->button4->TabIndex = 65;
+			this->button4->Text = L"Eliminar";
+			this->button4->UseVisualStyleBackColor = true;
+			this->button4->Click += gcnew System::EventHandler(this, &FormCiudad::button4_Click);
+			// 
+			// textBox5
+			// 
+			this->textBox5->Location = System::Drawing::Point(429, 392);
+			this->textBox5->Name = L"textBox5";
+			this->textBox5->Size = System::Drawing::Size(100, 20);
+			this->textBox5->TabIndex = 64;
+			this->textBox5->Text = L"5";
+			// 
+			// button3
+			// 
+			this->button3->Location = System::Drawing::Point(371, 293);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(134, 45);
+			this->button3->TabIndex = 63;
+			this->button3->Text = L"Buscar";
+			this->button3->UseVisualStyleBackColor = true;
+			this->button3->Click += gcnew System::EventHandler(this, &FormCiudad::button3_Click);
+			// 
+			// button2
+			// 
+			this->button2->Location = System::Drawing::Point(540, 294);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(136, 42);
+			this->button2->TabIndex = 62;
+			this->button2->Text = L"Mostrar";
+			this->button2->UseVisualStyleBackColor = true;
+			this->button2->Click += gcnew System::EventHandler(this, &FormCiudad::button2_Click);
+			// 
+			// button1
+			// 
+			this->button1->Location = System::Drawing::Point(12, 297);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(136, 41);
+			this->button1->TabIndex = 61;
+			this->button1->Text = L"Adicionar";
+			this->button1->UseVisualStyleBackColor = true;
+			this->button1->Click += gcnew System::EventHandler(this, &FormCiudad::button1_Click);
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(4) {this->Column1, 
+				this->Column2, this->Column3, this->Column4});
+			this->dataGridView1->Location = System::Drawing::Point(263, 27);
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->Size = System::Drawing::Size(404, 232);
+			this->dataGridView1->TabIndex = 60;
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"NroReg";
+			this->Column1->Name = L"Column1";
+			this->Column1->Width = 50;
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"idCiudad";
+			this->Column2->Name = L"Column2";
+			this->Column2->Width = 60;
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Nombre";
+			this->Column3->Name = L"Column3";
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Departamento";
+			this->Column4->Name = L"Column4";
+			this->Column4->Width = 150;
+			// 
+			// textBox3
+			// 
+			this->textBox3->Location = System::Drawing::Point(108, 136);
+			this->textBox3->Name = L"textBox3";
+			this->textBox3->Size = System::Drawing::Size(100, 20);
+			this->textBox3->TabIndex = 59;
+			// 
+			// textBox2
+			// 
+			this->textBox2->Location = System::Drawing::Point(108, 87);
+			this->textBox2->Name = L"textBox2";
+			this->textBox2->Size = System::Drawing::Size(100, 20);
+			this->textBox2->TabIndex = 58;
+			// 
+			// textBox1
+			// 
+			this->textBox1->Location = System::Drawing::Point(108, 43);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(100, 20);
+			this->textBox1->TabIndex = 57;
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(27, 139);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(74, 13);
+			this->label3->TabIndex = 55;
+			this->label3->Text = L"Departamento";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(27, 90);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(44, 13);
+			this->label2->TabIndex = 54;
+			this->label2->Text = L"Nombre";
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(27, 43);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(49, 13);
+			this->label1->TabIndex = 53;
+			this->label1->Text = L"IdCiudad";
+			// 
+			// FormCiudad
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(762, 437);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->label5);
+			this->Controls->Add(this->button4);
+			this->Controls->Add(this->textBox5);
+			this->Controls->Add(this->button3);
+			this->Controls->Add(this->button2);
+			this->Controls->Add(this->button1);
+			this->Controls->Add(this->dataGridView1);
+			this->Controls->Add(this->textBox3);
+			this->Controls->Add(this->textBox2);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->label2);
+			this->Controls->Add(this->label1);
+			this->Name = L"FormCiudad";
+			this->Text = L"FormCiudad";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->EndInit();
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+
+		bool intDatos(){		
+		//pasa los datos del form al objeto
+		char	idCiudad[10];
+		char	nombre[30];
+		int		i;
+		char    departamento[30];
+		bool    k = false;
+		if(textBox1->TextLength > 0 && textBox2->TextLength > 0 && textBox3->TextLength > 0){
+			for (i = 0; i < textBox1->TextLength;i++ ) {
+				idCiudad[i] = textBox1->Text[i];
+			}
+			idCiudad[i] = '\0';
+
+			for (i = 0; i < textBox2->TextLength;i++ ) {
+				nombre[i] = textBox2->Text[i];
+			}
+			nombre[i] = '\0';
+
+			for (i = 0; i < textBox3->TextLength;i++ ) {
+				departamento[i] = textBox3->Text[i];
+			}
+			departamento[i] = '\0';
+
+			if(ciud->verifexisteidCiudad(ARCHIVOCiudad,idCiudad)==false)
+			{
+				ciud->setCiudad(idCiudad,nombre,departamento);	
+				textBox1->Text =  ""; textBox2->Text =  ""; textBox3->Text = "";
+				k = true;
+			}
+			else
+			{
+				textBox1->Text =  "";
+				MessageBox::Show("Id ya existente, debe ingresar otro");	
+			}
+						
+		}else
+			MessageBox::Show("Debe introducir todos los datos ", "Alerta...!!!");			 
+		return(k);
+	 }
+
+
+	int getNumDeRegistros() {
+		 //retorna la cantidad de registros del archivo
+		int r = 0;
+		ifstream fentrada(ARCHIVOCiudad, ios::in | ios::binary);
+		fentrada.seekg(0, ios::end);		// ir al final del fichero
+		r  = fentrada.tellg();// leer la posición actual
+		// El número de registros es el tamaño en bytes dividido entre el tamaño del registro:
+		r = r / ciud->getTamBytesRegistro();
+		fentrada.close();
+		return (r);
+	}
+
+	
+	 int buscarCiudad(int nroReg, bool mostrar){
+		 //Busca un registro si lo encuentra puede ser que muestre en form y si no existe retorna -1
+		ifstream fentrada(ARCHIVOCiudad, ios::in | ios::binary);
+		if(ciud->buscar(fentrada,nroReg) == true) {			
+			if (ciud->getEstado() == 'A' ) {
+				if(mostrar){
+					textBox1->Text = gcnew String(ciud->getIdCiudad());
+					textBox2->Text = gcnew String(ciud->getNombre());
+					textBox3->Text = gcnew String(ciud->getDepartamento());					
+				}
+			}else{
+				nroReg=-1;
+			}
+		} else {
+			nroReg=-1;
+		}
+		fentrada.close();
+		if(nroReg <= 0)		MessageBox::Show("Registro no existe..!!! ", "Alerta...!!!");
+		return(nroReg);
+	}
+
+	 bool buscarCliente(Ciudad *regAmig){
+		 //Busca un registro 
+		 bool k = false;
+		 ifstream fentrada(ARCHIVOCiudad, ios::in | ios::binary);
+		 while ((ciud->leerArchivo(fentrada) == true)  && (k == false)) {
+			 if (ciud->getEstado() == 'A') {
+				 regAmig = ciud;
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+		//adicionar	
+		if (intDatos() == true) {
+				ofstream fsalida(ARCHIVOCiudad, ios::app | ios::binary);
+				ciud->guardarArchivo(fsalida);
+				fsalida.close();
+		}
+	}
+
+
+	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
+			 //listar  
+			//String^ cad = gcnew String();
+			int cr = 0,c=0,nr = getNumDeRegistros();
+			dataGridView1->ReadOnly = true;
+			if(nr > 0) dataGridView1->RowCount = nr; 
+			else{	   dataGridView1->RowCount = 1;
+					   MessageBox::Show("Archivo no existe..!!! ", "Alerta...!!!");
+			}	
+			ifstream fentrada(ARCHIVOCiudad, ios::in | ios::binary);
+			while (ciud->leerArchivo(fentrada) == true) {
+				cr++;
+				if (ciud->getEstado() == 'A') {
+					dataGridView1->Rows[c]->Cells[0]->Value = cr;
+					dataGridView1->Rows[c]->Cells[1]->Value = gcnew String(ciud->getIdCiudad());
+					dataGridView1->Rows[c]->Cells[2]->Value = gcnew String(ciud->getNombre());
+					dataGridView1->Rows[c++]->Cells[3]->Value = gcnew String(ciud->getDepartamento());
+				}
+			}
+			fentrada.close();
+		 }
+	
+
+	private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
+			 		//Borrar
+		int nroReg = Convert::ToInt32(textBox5->Text);
+		nroReg = buscarCiudad(nroReg,true);
+		if(nroReg > 0){
+			fstream fes(ARCHIVOCiudad, ios::in | ios::out | ios::binary);
+			ciud->eliminar(fes, nroReg);			
+			fes.close();
+		 }
+	}
+private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+			 //Buscar
+			int nroReg = Convert::ToInt32(textBox5->Text);
+			buscarCiudad(nroReg,true);
+		 }
+};
+}
+
+formhotel.h
+
+#pragma once
+#define ARCHIVOHotel "Hotel.dat"
+#include "Hotel.cpp"
+#include "FormCiudad.h"
+
+namespace ServicioHotelería {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for FormHotel
+	/// </summary>
+	public ref class FormHotel : public System::Windows::Forms::Form
+	{
+	public:
+		FormHotel(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+			hot = new Hotel();
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~FormHotel()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::Label^  label6;
+	protected: 
+	private: System::Windows::Forms::Label^  label5;
+
+	private: System::Windows::Forms::Button^  button4;
+	private: System::Windows::Forms::TextBox^  textBox5;
+	private: System::Windows::Forms::Button^  button3;
+	private: System::Windows::Forms::Button^  button2;
+	private: System::Windows::Forms::Button^  button1;
+	Hotel *hot;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column5;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column6;
+	private: System::Windows::Forms::TextBox^  textBox3;
+	private: System::Windows::Forms::TextBox^  textBox2;
+	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::TextBox^  textBox4;
+	private: System::Windows::Forms::Label^  label4;
+	private: System::Windows::Forms::TextBox^  textBox6;
+	private: System::Windows::Forms::Label^  label7;
+
+
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->button4 = (gcnew System::Windows::Forms::Button());
+			this->textBox5 = (gcnew System::Windows::Forms::TextBox());
+			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column6 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->textBox4 = (gcnew System::Windows::Forms::TextBox());
+			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->textBox6 = (gcnew System::Windows::Forms::TextBox());
+			this->label7 = (gcnew System::Windows::Forms::Label());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Bold | System::Drawing::FontStyle::Underline)), 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->label6->ForeColor = System::Drawing::Color::SandyBrown;
+			this->label6->Location = System::Drawing::Point(48, 244);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(138, 24);
+			this->label6->TabIndex = 83;
+			this->label6->Text = L"Pantalla Hotel";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(271, 395);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(140, 13);
+			this->label5->TabIndex = 82;
+			this->label5->Text = L"Numero de registro a buscar";
+			// 
+			// button4
+			// 
+			this->button4->Location = System::Drawing::Point(206, 290);
+			this->button4->Name = L"button4";
+			this->button4->Size = System::Drawing::Size(141, 43);
+			this->button4->TabIndex = 80;
+			this->button4->Text = L"Eliminar";
+			this->button4->UseVisualStyleBackColor = true;
+			this->button4->Click += gcnew System::EventHandler(this, &FormHotel::button4_Click);
+			// 
+			// textBox5
+			// 
+			this->textBox5->Location = System::Drawing::Point(440, 392);
+			this->textBox5->Name = L"textBox5";
+			this->textBox5->Size = System::Drawing::Size(100, 20);
+			this->textBox5->TabIndex = 79;
+			this->textBox5->Text = L"5";
+			// 
+			// button3
+			// 
+			this->button3->Location = System::Drawing::Point(382, 293);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(134, 45);
+			this->button3->TabIndex = 78;
+			this->button3->Text = L"Buscar";
+			this->button3->UseVisualStyleBackColor = true;
+			this->button3->Click += gcnew System::EventHandler(this, &FormHotel::button3_Click);
+			// 
+			// button2
+			// 
+			this->button2->Location = System::Drawing::Point(551, 294);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(136, 42);
+			this->button2->TabIndex = 77;
+			this->button2->Text = L"Mostrar";
+			this->button2->UseVisualStyleBackColor = true;
+			this->button2->Click += gcnew System::EventHandler(this, &FormHotel::button2_Click);
+			// 
+			// button1
+			// 
+			this->button1->Location = System::Drawing::Point(37, 292);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(136, 41);
+			this->button1->TabIndex = 76;
+			this->button1->Text = L"Adicionar";
+			this->button1->UseVisualStyleBackColor = true;
+			this->button1->Click += gcnew System::EventHandler(this, &FormHotel::button1_Click);
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(6) {this->Column1, 
+				this->Column2, this->Column3, this->Column4, this->Column5, this->Column6});
+			this->dataGridView1->Location = System::Drawing::Point(248, 27);
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->Size = System::Drawing::Size(460, 241);
+			this->dataGridView1->TabIndex = 75;
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"NroReg";
+			this->Column1->Name = L"Column1";
+			this->Column1->Width = 50;
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"idHotel";
+			this->Column2->Name = L"Column2";
+			this->Column2->Width = 50;
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Nombre";
+			this->Column3->Name = L"Column3";
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Ciudad";
+			this->Column4->Name = L"Column4";
+			// 
+			// Column5
+			// 
+			this->Column5->HeaderText = L"Precio";
+			this->Column5->Name = L"Column5";
+			this->Column5->Width = 70;
+			// 
+			// Column6
+			// 
+			this->Column6->HeaderText = L"Hab";
+			this->Column6->Name = L"Column6";
+			this->Column6->Width = 40;
+			// 
+			// textBox3
+			// 
+			this->textBox3->Location = System::Drawing::Point(119, 115);
+			this->textBox3->Name = L"textBox3";
+			this->textBox3->Size = System::Drawing::Size(100, 20);
+			this->textBox3->TabIndex = 74;
+			// 
+			// textBox2
+			// 
+			this->textBox2->Location = System::Drawing::Point(119, 80);
+			this->textBox2->Name = L"textBox2";
+			this->textBox2->Size = System::Drawing::Size(100, 20);
+			this->textBox2->TabIndex = 73;
+			// 
+			// textBox1
+			// 
+			this->textBox1->Location = System::Drawing::Point(119, 43);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(100, 20);
+			this->textBox1->TabIndex = 72;
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(34, 122);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(49, 13);
+			this->label3->TabIndex = 71;
+			this->label3->Text = L"IdCiudad";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(34, 87);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(44, 13);
+			this->label2->TabIndex = 70;
+			this->label2->Text = L"Nombre";
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(34, 43);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(41, 13);
+			this->label1->TabIndex = 69;
+			this->label1->Text = L"IdHotel";
+			// 
+			// textBox4
+			// 
+			this->textBox4->Location = System::Drawing::Point(119, 155);
+			this->textBox4->Name = L"textBox4";
+			this->textBox4->Size = System::Drawing::Size(100, 20);
+			this->textBox4->TabIndex = 85;
+			// 
+			// label4
+			// 
+			this->label4->AutoSize = true;
+			this->label4->Location = System::Drawing::Point(12, 193);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(114, 13);
+			this->label4->TabIndex = 84;
+			this->label4->Text = L"Cantidad Habitaciones";
+			// 
+			// textBox6
+			// 
+			this->textBox6->Location = System::Drawing::Point(132, 190);
+			this->textBox6->Name = L"textBox6";
+			this->textBox6->Size = System::Drawing::Size(100, 20);
+			this->textBox6->TabIndex = 87;
+			// 
+			// label7
+			// 
+			this->label7->AutoSize = true;
+			this->label7->Location = System::Drawing::Point(34, 162);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(37, 13);
+			this->label7->TabIndex = 86;
+			this->label7->Text = L"Precio";
+			// 
+			// FormHotel
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(730, 438);
+			this->Controls->Add(this->textBox6);
+			this->Controls->Add(this->label7);
+			this->Controls->Add(this->textBox4);
+			this->Controls->Add(this->label4);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->label5);
+			this->Controls->Add(this->button4);
+			this->Controls->Add(this->textBox5);
+			this->Controls->Add(this->button3);
+			this->Controls->Add(this->button2);
+			this->Controls->Add(this->button1);
+			this->Controls->Add(this->dataGridView1);
+			this->Controls->Add(this->textBox3);
+			this->Controls->Add(this->textBox2);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->label2);
+			this->Controls->Add(this->label1);
+			this->Name = L"FormHotel";
+			this->Text = L"FormHotel";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->EndInit();
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+
+		bool intDatos(){		
+		//pasa los datos del form al objeto
+		char	idHotel[10];
+		char	nombre[30];
+		char    idCiudad[10];
+		int		precio, hab,i;
+		bool    k = false;
+		if(textBox1->TextLength > 0 && textBox2->TextLength > 0 && textBox3->TextLength > 0
+			&& textBox4->TextLength > 00 && textBox6->TextLength > 00){
+
+			for (i = 0; i < textBox1->TextLength;i++ ) {
+				idHotel[i] = textBox1->Text[i];
+			}
+			idHotel[i] = '\0';
+
+			for (i = 0; i < textBox2->TextLength;i++ ) {
+				nombre[i] = textBox2->Text[i];
+			}
+			nombre[i] = '\0';
+
+			for (i = 0; i < textBox3->TextLength;i++ ) {
+				idCiudad[i] = textBox3->Text[i];
+			}
+			idCiudad[i] = '\0';
+
+			precio = Convert::ToInt32(textBox4->Text);
+
+			hab = Convert::ToInt32(textBox6->Text);
+			
+			Ciudad *ciu = new Ciudad();
+
+			if(hot->verifexisteidHotel(ARCHIVOHotel,idHotel)==false)
+			{
+				if(ciu->verifexisteidCiudad("Ciudad.dat",idCiudad)==true)
+				{
+
+					hot->setHotel(idHotel,nombre,idCiudad, precio, hab);	
+			
+					k = true;
+					textBox1->Text =  ""; textBox2->Text =  ""; textBox3->Text = "";
+					textBox4->Text =  ""; textBox6->Text =  "";
+			
+				}
+				else
+				{
+					textBox3->Text = "";
+					MessageBox::Show("Ciudad no existente, debe registrarla primero");
+				}
+			}
+			else
+			{
+				textBox1->Text =  "";
+				MessageBox::Show("Id ya existente, debe ingresar otro");
+			}
+		}else
+			MessageBox::Show("Debe introducir todos los datos ", "Alerta...!!!");			 
+		return(k);
+	 }
+
+	 int getNumDeRegistros() {
+		 //retorna la cantidad de registros del archivo
+		int r = 0;
+		ifstream fentrada(ARCHIVOHotel, ios::in | ios::binary);
+		fentrada.seekg(0, ios::end);		// ir al final del fichero
+		r  = fentrada.tellg();// leer la posición actual
+		// El número de registros es el tamaño en bytes dividido entre el tamaño del registro:
+		r = r / hot->getTamBytesRegistro();
+		fentrada.close();
+		return (r);
+	}
+
+
+	 int buscarHotel(int nroReg, bool mostrar){
+		 //Busca un registro si lo encuentra puede ser que muestre en form y si no existe retorna -1
+		ifstream fentrada(ARCHIVOHotel, ios::in | ios::binary);
+		if(hot->buscar(fentrada,nroReg) == true) {			
+			if (hot->getEstado() == 'A' ) {
+				if(mostrar){
+					textBox1->Text = gcnew String(hot->getidHotel());
+					textBox2->Text = gcnew String(hot->getNombre());
+					textBox3->Text = gcnew String(hot->getidCiudad());
+					textBox4->Text = hot->getPrecio().ToString();
+					textBox6->Text = hot->getHabitaciones().ToString();
+				}
+			}else{
+				nroReg=-1;
+			}
+		} else {
+			nroReg=-1;
+		}
+		fentrada.close();
+		if(nroReg <= 0)		MessageBox::Show("Registro no existe..!!! ", "Alerta...!!!");
+		return(nroReg);
+	}
+
+	 bool buscarHotel(Hotel *regAmig){
+		 //Busca un registro 
+		 bool k = false;
+		 ifstream fentrada(ARCHIVOHotel, ios::in | ios::binary);
+		 while ((hot->leerArchivo(fentrada) == true)  && (k == false)) {
+			 if (hot->getEstado() == 'A') {
+				 regAmig = hot;
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+			 //adicionar	
+		if (intDatos() == true) {
+			ofstream fsalida(ARCHIVOHotel, ios::app | ios::binary);
+			hot->guardarArchivo(fsalida);
+			fsalida.close();
+		 }
+		}
+
+private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
+		//listar  
+		//String^ cad = gcnew String();
+		int cr = 0,c=0,nr = getNumDeRegistros();
+		dataGridView1->ReadOnly = true;
+		if(nr > 0) dataGridView1->RowCount = nr; 
+		else{	   dataGridView1->RowCount = 1;
+				   MessageBox::Show("Archivo no existe..!!! ", "Alerta...!!!");
+		}	
+		ifstream fentrada(ARCHIVOHotel, ios::in | ios::binary);
+		while (hot->leerArchivo(fentrada) == true) {
+			cr++;
+			if (hot->getEstado() == 'A') {
+				dataGridView1->Rows[c]->Cells[0]->Value = cr;
+				dataGridView1->Rows[c]->Cells[1]->Value = gcnew String(hot->getidHotel());
+				dataGridView1->Rows[c]->Cells[2]->Value = gcnew String(hot->getNombre());
+				Ciudad *ciu = new Ciudad();
+				ciu -> getRegCiudad("Ciudad.dat",hot->getidCiudad());
+				dataGridView1->Rows[c]->Cells[3]->Value = gcnew String(ciu->getNombre());
+				dataGridView1->Rows[c]->Cells[4]->Value = hot->getPrecio();
+				dataGridView1->Rows[c++]->Cells[5]->Value = hot->getHabitaciones();
+			}
+		}
+		fentrada.close();
+	}
+
+private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
+						//Borrar
+			int nroReg = Convert::ToInt32(textBox5->Text);
+			Ciudad *ciu=new Ciudad();
+			nroReg = buscarHotel(nroReg,true);
+			if(nroReg > 0){
+				fstream fes(ARCHIVOHotel, ios::in | ios::out | ios::binary);
+				if(ciu->verifexisteidCiudad("Hotel.dat",hot->getidCiudad())==false)
+				{
+					hot->eliminar(fes, nroReg);			
+					fes.close();
+				}
+				else
+				{
+					MessageBox::Show("No es posible eliminar, elimine primero ciudad");
+				}
+			}
+		 }
+private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+			 	//Buscar
+				int nroReg = Convert::ToInt32(textBox5->Text);
+				buscarHotel(nroReg,true);
+		 }
+};
+}
+
+formhabitacion.h
+
+#pragma once
+#define ARCHIVOHabitacion "Habitacion.dat"
+#include "Habitacion.cpp"
+#include "FormHotel.h"
+
+namespace ServicioHotelería {
+
+	using namespace System;
+	using namespace System::ComponentModel;
+	using namespace System::Collections;
+	using namespace System::Windows::Forms;
+	using namespace System::Data;
+	using namespace System::Drawing;
+
+	/// <summary>
+	/// Summary for FormHabitacion
+	/// </summary>
+	public ref class FormHabitacion : public System::Windows::Forms::Form
+	{
+	public:
+		FormHabitacion(void)
+		{
+			InitializeComponent();
+			//
+			//TODO: Add the constructor code here
+			//
+			habi=new Habitacion();
+		}
+
+	protected:
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		~FormHabitacion()
+		{
+			if (components)
+			{
+				delete components;
+			}
+		}
+	private: System::Windows::Forms::Label^  label6;
+	protected: 
+	private: System::Windows::Forms::Label^  label5;
+	private: System::Windows::Forms::Button^  button4;
+	private: System::Windows::Forms::TextBox^  textBox5;
+	private: System::Windows::Forms::Button^  button3;
+	private: System::Windows::Forms::Button^  button2;
+	private: System::Windows::Forms::Button^  button1;
+	private: Habitacion *habi;
+	private: System::Windows::Forms::DataGridView^  dataGridView1;
+
+
+
+
+	private: System::Windows::Forms::TextBox^  textBox3;
+	private: System::Windows::Forms::TextBox^  textBox2;
+	private: System::Windows::Forms::TextBox^  textBox1;
+	private: System::Windows::Forms::Label^  label3;
+	private: System::Windows::Forms::Label^  label2;
+	private: System::Windows::Forms::Label^  label1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column2;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column3;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column4;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^  Column5;
+
+	private:
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		System::ComponentModel::Container ^components;
+
+#pragma region Windows Form Designer generated code
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		void InitializeComponent(void)
+		{
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->button4 = (gcnew System::Windows::Forms::Button());
+			this->textBox5 = (gcnew System::Windows::Forms::TextBox());
+			this->button3 = (gcnew System::Windows::Forms::Button());
+			this->button2 = (gcnew System::Windows::Forms::Button());
+			this->button1 = (gcnew System::Windows::Forms::Button());
+			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+			this->Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label1 = (gcnew System::Windows::Forms::Label());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->BeginInit();
+			this->SuspendLayout();
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Bold | System::Drawing::FontStyle::Underline)), 
+				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->label6->ForeColor = System::Drawing::Color::SandyBrown;
+			this->label6->Location = System::Drawing::Point(49, 201);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(188, 24);
+			this->label6->TabIndex = 83;
+			this->label6->Text = L"Pantalla Habitacion";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(272, 378);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(140, 13);
+			this->label5->TabIndex = 82;
+			this->label5->Text = L"Numero de registro a buscar";
+			// 
+			// button4
+			// 
+			this->button4->Location = System::Drawing::Point(207, 273);
+			this->button4->Name = L"button4";
+			this->button4->Size = System::Drawing::Size(141, 43);
+			this->button4->TabIndex = 80;
+			this->button4->Text = L"Eliminar";
+			this->button4->UseVisualStyleBackColor = true;
+			this->button4->Click += gcnew System::EventHandler(this, &FormHabitacion::button4_Click);
+			// 
+			// textBox5
+			// 
+			this->textBox5->Location = System::Drawing::Point(441, 375);
+			this->textBox5->Name = L"textBox5";
+			this->textBox5->Size = System::Drawing::Size(100, 20);
+			this->textBox5->TabIndex = 79;
+			this->textBox5->Text = L"5";
+			// 
+			// button3
+			// 
+			this->button3->Location = System::Drawing::Point(383, 276);
+			this->button3->Name = L"button3";
+			this->button3->Size = System::Drawing::Size(134, 45);
+			this->button3->TabIndex = 78;
+			this->button3->Text = L"Buscar";
+			this->button3->UseVisualStyleBackColor = true;
+			this->button3->Click += gcnew System::EventHandler(this, &FormHabitacion::button3_Click);
+			// 
+			// button2
+			// 
+			this->button2->Location = System::Drawing::Point(552, 277);
+			this->button2->Name = L"button2";
+			this->button2->Size = System::Drawing::Size(136, 42);
+			this->button2->TabIndex = 77;
+			this->button2->Text = L"Mostrar";
+			this->button2->UseVisualStyleBackColor = true;
+			this->button2->Click += gcnew System::EventHandler(this, &FormHabitacion::button2_Click);
+			// 
+			// button1
+			// 
+			this->button1->Location = System::Drawing::Point(38, 275);
+			this->button1->Name = L"button1";
+			this->button1->Size = System::Drawing::Size(136, 41);
+			this->button1->TabIndex = 76;
+			this->button1->Text = L"Adicionar";
+			this->button1->UseVisualStyleBackColor = true;
+			this->button1->Click += gcnew System::EventHandler(this, &FormHabitacion::button1_Click);
+			// 
+			// dataGridView1
+			// 
+			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(5) {this->Column1, 
+				this->Column2, this->Column3, this->Column4, this->Column5});
+			this->dataGridView1->Location = System::Drawing::Point(243, 12);
+			this->dataGridView1->Name = L"dataGridView1";
+			this->dataGridView1->Size = System::Drawing::Size(472, 232);
+			this->dataGridView1->TabIndex = 75;
+			// 
+			// Column1
+			// 
+			this->Column1->HeaderText = L"NroReg";
+			this->Column1->Name = L"Column1";
+			this->Column1->Width = 50;
+			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"idHab";
+			this->Column2->Name = L"Column2";
+			this->Column2->Width = 40;
+			// 
+			// Column3
+			// 
+			this->Column3->HeaderText = L"Hab";
+			this->Column3->Name = L"Column3";
+			// 
+			// Column4
+			// 
+			this->Column4->HeaderText = L"Hotel";
+			this->Column4->Name = L"Column4";
+			this->Column4->Width = 120;
+			// 
+			// Column5
+			// 
+			this->Column5->HeaderText = L"Estado";
+			this->Column5->Name = L"Column5";
+			// 
+			// textBox3
+			// 
+			this->textBox3->Location = System::Drawing::Point(120, 119);
+			this->textBox3->Name = L"textBox3";
+			this->textBox3->Size = System::Drawing::Size(100, 20);
+			this->textBox3->TabIndex = 74;
+			// 
+			// textBox2
+			// 
+			this->textBox2->Location = System::Drawing::Point(120, 70);
+			this->textBox2->Name = L"textBox2";
+			this->textBox2->Size = System::Drawing::Size(100, 20);
+			this->textBox2->TabIndex = 73;
+			// 
+			// textBox1
+			// 
+			this->textBox1->Location = System::Drawing::Point(120, 26);
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(100, 20);
+			this->textBox1->TabIndex = 72;
+			// 
+			// label3
+			// 
+			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(39, 122);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(40, 13);
+			this->label3->TabIndex = 71;
+			this->label3->Text = L"idHotel";
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(39, 73);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(58, 13);
+			this->label2->TabIndex = 70;
+			this->label2->Text = L"Habitacion";
+			// 
+			// label1
+			// 
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(39, 26);
+			this->label1->Name = L"label1";
+			this->label1->Size = System::Drawing::Size(67, 13);
+			this->label1->TabIndex = 69;
+			this->label1->Text = L"IdHabitacion";
+			// 
+			// FormHabitacion
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(727, 410);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->label5);
+			this->Controls->Add(this->button4);
+			this->Controls->Add(this->textBox5);
+			this->Controls->Add(this->button3);
+			this->Controls->Add(this->button2);
+			this->Controls->Add(this->button1);
+			this->Controls->Add(this->dataGridView1);
+			this->Controls->Add(this->textBox3);
+			this->Controls->Add(this->textBox2);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label3);
+			this->Controls->Add(this->label2);
+			this->Controls->Add(this->label1);
+			this->Name = L"FormHabitacion";
+			this->Text = L"FormHabitacion";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->dataGridView1))->EndInit();
+			this->ResumeLayout(false);
+			this->PerformLayout();
+
+		}
+#pragma endregion
+
+		
+		bool intDatos(){		
+		//pasa los datos del form al objeto
+		char	idHabitacion[10];
+		char	nombre[30];
+		int		i;
+		char    idHotel[30];
+		bool    k = false;
+		if(textBox1->TextLength > 0 && textBox2->TextLength > 0 && textBox3->TextLength > 0){
+			for (i = 0; i < textBox1->TextLength;i++ ) {
+				idHabitacion[i] = textBox1->Text[i];
+			}
+			idHabitacion[i] = '\0';
+
+			for (i = 0; i < textBox2->TextLength;i++ ) {
+				nombre[i] = textBox2->Text[i];
+			}
+			nombre[i] = '\0';
+
+			for (i = 0; i < textBox3->TextLength;i++ ) {
+				idHotel[i] = textBox3->Text[i];
+			}
+			idHotel[i] = '\0';
+
+			Hotel *hot=new Hotel();
+
+			if(habi->verifexisteidHabitacion("Habitacion.dat",idHabitacion)==false)
+			{
+				if(hot->verifexisteidHotel("Hotel.dat",idHotel)==true)
+				{
+					habi->setHabitacion(idHabitacion,nombre,idHotel);	
+					textBox1->Text =  ""; textBox2->Text =  ""; textBox3->Text = "";
+					k = true;
+				}
+				else
+				{
+					textBox3->Text =  "";
+					MessageBox::Show("El Hotel no existe, debe registrarlo primero");
+				}
+			}
+			else
+			{
+					textBox1->Text =  "";
+					MessageBox::Show("Id ya existente, ingrese otro");
+			}
+
+		}else
+			MessageBox::Show("Debe introducir todos los datos ", "Alerta...!!!");			 
+		return(k);
+	 }
+
+
+	int getNumDeRegistros() {
+		 //retorna la cantidad de registros del archivo
+		int r = 0;
+		ifstream fentrada(ARCHIVOHabitacion, ios::in | ios::binary);
+		fentrada.seekg(0, ios::end);		// ir al final del fichero
+		r  = fentrada.tellg();// leer la posición actual
+		// El número de registros es el tamaño en bytes dividido entre el tamaño del registro:
+		r = r / habi->getTamBytesRegistro();
+		fentrada.close();
+		return (r);
+	}
+
+	 int buscarHabitacion(int nroReg, bool mostrar){
+		 //Busca un registro si lo encuentra puede ser que muestre en form y si no existe retorna -1
+		ifstream fentrada(ARCHIVOHabitacion, ios::in | ios::binary);
+		if(habi->buscar(fentrada,nroReg) == true) {			
+			if (habi->getEstado() == 'A' ) {
+				if(mostrar){
+					textBox1->Text = gcnew String(habi->getIdHabitacion());
+					textBox2->Text = gcnew String(habi->getNombre());
+					textBox3->Text = gcnew String(habi->getidHotel());
+				}
+			}else{
+				nroReg=-1;
+			}
+		} else {
+			nroReg=-1;
+		}
+		fentrada.close();
+		if(nroReg <= 0)		MessageBox::Show("Registro no existe..!!! ", "Alerta...!!!");
+		return(nroReg);
+	}
+
+	 bool buscarHabitacion(Habitacion *regAmig){
+		 //Busca un registro 
+		 bool k = false;
+		 ifstream fentrada(ARCHIVOHabitacion, ios::in | ios::binary);
+		 while ((habi->leerArchivo(fentrada) == true)  && (k == false)) {
+			 if (habi->getEstado() == 'A') {
+				 regAmig = habi;
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
+				 	 //adicionar	
+		if (intDatos() == true) {
+			ofstream fsalida(ARCHIVOHabitacion, ios::app | ios::binary);
+			habi->guardarArchivo(fsalida);
+			fsalida.close();
+		 }
+		}
+
+private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
+			//listar  
+			//String^ cad = gcnew String();
+			int cr = 0,c=0,nr = getNumDeRegistros();
+			dataGridView1->ReadOnly = true;
+			if(nr > 0) dataGridView1->RowCount = nr; 
+			else{	   dataGridView1->RowCount = 1;
+					   MessageBox::Show("Archivo no existe..!!! ", "Alerta...!!!");
+			}	
+			ifstream fentrada(ARCHIVOHabitacion, ios::in | ios::binary);
+			while (habi->leerArchivo(fentrada) == true) {
+				cr++;
+					dataGridView1->Rows[c]->Cells[0]->Value = cr;
+					dataGridView1->Rows[c]->Cells[1]->Value = gcnew String(habi->getIdHabitacion());
+					dataGridView1->Rows[c]->Cells[2]->Value = gcnew String(habi->getNombre());
+					Hotel *hot = new Hotel();
+					hot->getRegHotel("Hotel.dat",habi->getidHotel());
+					dataGridView1->Rows[c]->Cells[3]->Value = gcnew String(hot->getNombre());
+					if(habi->getEstado()=='D')
+					{
+						dataGridView1->Rows[c++]->Cells[4]->Value = gcnew String("Disponible");	
+					}
+					else
+					{
+						dataGridView1->Rows[c++]->Cells[4]->Value = gcnew String("Ocupado");	
+					}
+
+			}
+			fentrada.close();
+		 }
+
+private: System::Void button4_Click(System::Object^  sender, System::EventArgs^  e) {
+			 			//Borrar
+			int nroReg = Convert::ToInt32(textBox5->Text);
+			Hotel *hot = new Hotel();
+			nroReg = buscarHabitacion(nroReg,true);
+			if(nroReg > 0){
+				fstream fes(ARCHIVOHabitacion, ios::in | ios::out | ios::binary);
+				if(hot->verifexisteidHotel("Habitacion.dat",habi->getIdHabitacion())==false)
+				{
+					habi->eliminar(fes, nroReg);			
+					fes.close();
+				}
+				else
+				{
+					MessageBox::Show("No es posible eliminar, elimine primero hotel");
+				}
+			}
+		 }
+private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
+			 			 		//Buscar
+				int nroReg = Convert::ToInt32(textBox5->Text);
+				buscarHabitacion(nroReg,true);
+		 }
+};
+}
+
+formregistro.h
+
+#include "StdAfx.h"
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+class Administrador {
+
+private:
+	char	idAdministrador[10];
+	char	nombre[30];
+	char    idHotel[20];
+	char	sexo;
+	char	estado;		//eliminado = E, activo = A
+
+public:
+
+	Administrador() {
+		strcpy(idAdministrador,"");
+		strcpy(nombre,"");
+		strcpy(idHotel,"");
+		sexo		= ' ';
+		estado		= ' ';
+	}
+	
+	Administrador(char idAd[], char nom[], char car[], char sx) { 
+		strcpy(idAdministrador,idAd);
+		strcpy(nombre,nom);
+		strcpy(idHotel,car);
+		sexo	= sx;
+		estado  = 'A';
+	}
+
+	~Administrador(){
+		
+	}
+	
+	void setAdministrador(char idAd[], char nom[], char car[], char sx) {
+		strcpy(idAdministrador,idAd);
+		strcpy(nombre,nom);
+		strcpy(idHotel,car);
+		sexo		= sx;
+		estado		= 'A';
+	}
+
+	char *getIdAdministrador() {
+		return(idAdministrador);
+	}
+
+	char *getNombre() {
+		return(nombre);
+	}
+
+	char *getidHotel() {
+		return(idHotel);
+	}
+
+	char getSexo() {
+		return(sexo);
+	}
+
+	char getEstado() {
+		return(estado);
+	}
+
+	void guardarArchivo(ofstream &fsalida) {
+		fsalida.write(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+		fsalida.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+		fsalida.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+		fsalida.write(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+		fsalida.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+	}
+
+	bool leerArchivo(ifstream &fentrada) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.read(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+			if (fentrada.eof() == false) {		
+				fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fentrada.read(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				//cout << endl << "Registro no existe";
+			}
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool eliminar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+			if (fes.eof() == false) {
+				fes.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.read(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fes.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+		
+				estado = 'E';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+
+	bool modificar(fstream &fes, int nroReg){
+		bool k = false;
+		if (fes.is_open() == true) {
+			char aux[10];
+			strcpy(aux,idAdministrador);
+			fes.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fes.read(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+			if (fes.eof() == false) {
+				strcpy(idAdministrador,aux);
+				estado = 'A';
+				fes.seekp(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+				fes.write(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+				fes.write(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+				fes.write(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+				fes.write(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+				fes.write(reinterpret_cast<char *>(&estado), sizeof(estado));
+				k = true;
+			}else {
+				cout << endl << "Registro no existe";
+			}			
+		}else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	bool buscar(ifstream &fentrada, int nroReg) {
+		bool k = false;
+		if (fentrada.is_open() == true) {
+			fentrada.seekg(getTamBytesRegistro() * (nroReg - 1), ios::beg);
+			fentrada.read(reinterpret_cast<char *>(&idAdministrador), sizeof(idAdministrador));
+			fentrada.read(reinterpret_cast<char *>(&nombre), sizeof(nombre));
+			fentrada.read(reinterpret_cast<char *>(&idHotel), sizeof(idHotel));
+			fentrada.read(reinterpret_cast<char *>(&sexo), sizeof(sexo));
+			fentrada.read(reinterpret_cast<char *>(&estado), sizeof(estado));
+			if (fentrada.eof() == false) {
+				k = true;
+			}
+			else {
+				//cout << endl << "Registro no XX existe";
+			}
+		}
+		else {
+			cout << endl << "Arhivo no existe";
+		}
+		return(k);
+	}
+
+	int getTamBytesRegistro() {
+		return(sizeof(idAdministrador) + sizeof(nombre) + sizeof(idHotel) + sizeof(sexo) + sizeof(estado) );
+	}
+
+	bool getRegAdministrador(char nomArchAdministrador[],char idPr[]){
+		//listar  
+		bool  k = false;
+		ifstream fentrada(nomArchAdministrador, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (getEstado() == 'A' && (strcmp(idPr, getIdAdministrador()) == 0)) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+
+	bool verifexisteidAdministrador(char nomArch[],char idPr[]){
+		//VerifExisteAdministrador  
+		bool  k = false;
+		ifstream fentrada(nomArch, ios::in | ios::binary);
+		while ((k == false) && (leerArchivo(fentrada) == true) ) {
+			 if (strcmp(idPr, getIdAdministrador()) == 0) {
+				 k       = true; 
+			 }
+		 }
+		 fentrada.close();
+		 return(k);
+	}
+};
